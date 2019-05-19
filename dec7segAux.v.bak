@@ -1,0 +1,156 @@
+//////////////////////////////////////////////////////////////////////////////////
+// João Bittencourt
+// Nov 2018
+//////////////////////////////////////////////////////////////////////////////////
+
+`timescale 1ns / 1ps
+
+module dec7segScr(
+   input  [3:0] X,
+   output [6:0] segment7,
+   output [6:0] segment6,
+   );
+
+	reg [6:0] seg7,seg6,seg7,seg6;
+	
+	always@ (*) begin
+	
+		case(X)
+			4'd0:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b0111111);
+			end
+			4'd1:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b0000110);
+			end
+			4'd2:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b1011011);
+			end
+			4'd3:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b1011011);
+			end
+			4'd4:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b1100110);
+			end
+			4'd5:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b1101101);
+			end
+			4'd6:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b1111101);
+			end
+			4'd7:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b0000111);
+			end
+			4'd8:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b1111111);
+			end
+			4'd9:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b1101111);
+			end
+			4'd10:begin 
+				seg7 = ~(7'b0111111);
+				seg6 = ~(7'b0111111);
+			end
+			4'd11:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b0000110);
+			end
+			4'd12:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b1011011);
+			end
+			4'd13:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b1011011);
+			end
+			4'd14:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b1100110);
+			end
+			4'd15:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b1101101);
+			end
+			4'd16:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b1111101);
+			end
+			4'd17:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b0000111);
+			end
+			4'd18:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b1111111);
+			end
+			4'd19:begin 
+				seg7 = ~(7'b0000110);
+				seg6 = ~(7'b1101111);
+			end
+			4'd20:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b0111111);
+			end
+			4'd21:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b0000110);
+			end
+			4'd22:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b1011011);
+			end
+			4'd23:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b1011011);
+			end
+			4'd24:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b1100110);
+			end
+			4'd25:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b1101101);
+			end
+			4'd26:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b1111101);
+			end
+			4'd27:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b0000111);
+			end
+			4'd28:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b1111111);
+			end
+			4'd29:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b1101111);
+			end
+			4'd30:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b0111111);
+			end
+			4'd31:begin 
+				seg7 = ~(7'b1011011);
+				seg6 = ~(7'b0000110);
+			end
+		
+	
+		endcase
+	end
+	
+	assign segment7 = seg7;
+	assign segment6 = seg6;
+
+
+endmodule

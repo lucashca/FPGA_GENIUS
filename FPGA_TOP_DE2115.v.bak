@@ -1,0 +1,140 @@
+//------------------------------------------------------------------------------
+//	Module:	FPGA_TOP_DE2115
+//	Desc:	Top level interface from a DE2-115 FPGA board
+//------------------------------------------------------------------------------
+
+module FPGA_TOP_DE2115
+	(
+		////////////////////	Clock Input	 	////////////////////	 
+		input CLOCK_50,	//	50 MHz
+		input reset,	
+		////////////////////	Push Button		////////////////////
+		input KEY[0],	//Cor 1 e Altera opção
+		input KEY[1],	//Cor 2 e Enter
+		input KEY[2],	//Cor 3
+		input KEY[3],	//Cor 4
+		////////////////////	DPDT Switch		////////////////////
+		input SW[0],	//Reset Toggle Switch
+		////////////////////	RGB LED		    ////////////////////
+		output [8:0] 	LEDG,								//	Green LEDs
+		output [17:0]	LEDR,		
+		output VGA_CLK,
+		output VGA_SYNC_N,
+		output VGA_BLANK_N,
+		output [7:0] VGA_R,
+		output [7:0] VGA_G,
+		output [7:0] VGA_B,
+		output VGA_HS,
+		output VGA_VS									//	Red LEDs
+	);
+
+	assign LockReset = SW[0];
+	
+	////////////////////////	Clock Input	 	////////////////////////
+				//	50 MHz
+	////////////////////////	Push Button		////////////////////////
+								//	Pushbutton[3:0]
+	////////////////////////	DPDT Switch		////////////////////////
+								//	Toggle Switch[3:0]
+	////////////////////////	  LEDs		   ////////////////////////
+							//	Red LEDs
+
+	wire	[4:0]				State;
+	wire	[2:0]				DebugState;
+	wire						pronto;
+	wire						btn1; 
+	wire						btn2;
+	wire						btn3;
+	wire						btn4;
+	wire						Open;
+	wire						Fail;
+	wire	[3:0]				Digit;
+	wire						LockReset;
+
+	//assign LockReset 	= KEY[0];
+	
+	wire [3:0] signalButton;
+	wire [3:0] signalRand;
+	wire [3:0] red, green, blue;
+	
+	//--------------------------------------------------------------------------
+	//	Parse input from buttons
+	//--------------------------------------------------------------------------
+
+	LevelToPulse	LockEnterPulse0	(	
+						.Clock(				CLOCK_50),
+						.Reset(				LockReset),
+						.Level(				KEY[0]),
+						.Pulse(				btn1));		
+	LevelToPulse	LockEnterPulse1	(	
+						.Clock(				CLOCK_50),
+						.Reset(				LockReset),
+						.Level(				KEY[1]),
+						.Pulse(				btn2));		
+	LevelToPulse	LockEnterPulse2	(	
+						.Clock(				CLOCK_50),
+						.Reset(				LockReset),
+						.Level(				KEY[2]),
+						.Pulse(				btn3));	
+
+	LevelToPulse	LockEnterPulse3	(	
+						.Clock(				CLOCK_50),
+						.Reset(				LockReset),
+						.Level(				KEY[3]),
+						.Pulse(				btn4));		
+
+
+	/*Lab2Lock		Lab2LockFSM (
+						.Clock(				CLOCK_50),
+						.Reset(				LockReset),
+						.Enter(				Enter),
+						.Digit(				Digit),
+						.State(				State),
+						.Open(				Open),
+						.Fail(				Fail));
+	*/
+
+	fsm_genius FSM(
+		
+		);
+
+	Timer TIMER(
+		.clock(CLOCK_50),
+		.reset(Reset),
+		.set(tempo),
+		.pronto(pronto)
+		);
+
+	assign signalButton[0] = btn1;
+	assign signalButton[1] = btn2;
+	assign signalButton[2] = btn3;
+	assign signalButton[3] = btn4;
+
+	RandColor randomizeColor(
+		.reset(reset),
+		.clock(CLOCK_50),
+		.random(random)
+		);
+
+
+	VGADriver VGADriver_Top
+	(
+		.clock (CLOCK_50),
+		.signal(signalRand),
+		.red   (red),
+		.green (green),
+		.blue  (blue),
+		.hsync (VGA_HS),
+		.vsync (VGA_VS),
+		.avideo(VGA_BLANK_N)
+	);
+
+ 
+	//--------------------------------------------------------------------------	
+
+	assign VGA_R = {red,4'b0000};
+	assign VGA_G = {green,4'b0000};
+	assign VGA_B = {blue,4'b0000};
+	assign VGA_CLK = CLOCK_50;
+
+endmodule

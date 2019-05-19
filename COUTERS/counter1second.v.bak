@@ -1,0 +1,19 @@
+`timescale 1ns / 1ps
+
+module counter1second (
+	input clock,    // Clock
+	input reset,
+	output [3:0] y
+);
+	
+	reg [31:0] value;
+
+
+
+always @(posedge clock) begin
+	value <= reset ? (value + 1'b1) : 4'b0000 ;
+end
+	
+	assign y = value [29:26];
+
+endmodule

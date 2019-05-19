@@ -1,0 +1,198 @@
+module fsm_genius(		//----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  reset,				//reset
+  clock, 				//clock
+  pronto,			  //contagem concluida pelo timer
+  tempo,				//quanto o timer ira contar
+  btn1, 				//botao vermelho
+  btn2, 				//botao verde
+  btn3, 				//botao azul 
+ btn4,				  //botao amarelo
+  LED0, 				//led vermelho
+  LED1, 				//led verde
+  LED2,  				//led azul
+  LED3,	 				//led amarelo
+  DISP1,			  //display de 7 segmentos 1
+  DISP2,			  //display de 7 segmentos 2
+  DISP3,			  //display de 7 segmentos 3
+  DISP4,			  //display de 7 segmentos 4
+  rand_color, 	//cor aleatória
+  score,			  //4'b0000
+  DISP_SU,		  //valor 7-seg vindo do modulo Score
+  DISP_SD,		  //valor 7-seg vindo do modulo Score
+  DISP_SC,		  //valor 7-seg vindo do modulo Score
+  DISP_SM,		  //valor 7-seg vindo do modulo Score
+  state_atual		//output visual para o estado atual
+);
+ 	
+  //Entradas
+	input reset; 						//Reset
+	input clock;  					//Clock
+	input btn1;   					//Botão Vermelho
+	input btn2;   					//Botão Verde
+	input btn3;   					//Botão Azul
+	input btn4;							//Botão Amarelo
+	input pronto;				    //fim do timer
+  input [1:0] rand_color;	//Gera cor aleatória
+  
+  //Saidas
+	output reg LED0;  					//Led vermelho
+	output reg LED1;  					//Led verde
+	output reg LED2;  					//Led azul
+	output reg LED3; 						//Led amarelo
+  output reg [1:0] tempo; 	//timer da dificuldade 
+                            //(1'b01=1s; 1'b10=2s)
+  output reg [6:0] DISP1;  	//1º Display de 7 segmentos
+  output reg [6:0] DISP2;  	//2º Display de 7 segmentos
+  output reg [6:0] DISP3;  	//3º Display de 7 segmentos
+  output reg [6:0] DISP4;		//4º Display de 7 segmentos
+  output reg [11:0] score;
+  output reg [5:0] state_atual;
+
+ 	//Variaves
+  reg state;							//Registrador de estados	
+  reg mode;							    //Modo de jogador
+  reg vel;							    //Velocidade da partida
+  reg player;								//Identifica o jogador atual
+  reg [1:0] cor;				    //Guarda cor atual
+  reg [5:0] next_state;			//Variável de estado futuro
+  reg [5:0] max_cor;				//Quantidade maxima de cores a serem computadas
+  reg [4:0] cor_atual;			//Ponteiro para a posicao atual em seq
+  reg [4:0] ultima_cor;			//Ponteiro para a ultima cor computada em seq
+  reg [4:0] cor_atualAux;		//Ponteiro que guarda a posicao onde o jogador perdeu
+  reg [1:0] seq[31:0];	    //Vetor de 32 posicoes contendo a sequencia de cores (2 bits)
+  reg pulse;					      //Variavel sincrona para dar sensibilidade aos blocos assincronos
+  reg [11:0] score_nxt;			//Variavel que impede o acrescimo em loop de score
+  reg [4:0] cor_atual_nxt;	//Variavel que impede o acrescimo em loop de cor_atual
+  reg [4:0] ultima_cor_nxt;	//Variavel que impede o acrescimo em loop de ultima_cor
+  reg next_player;					//Variavel que impede o acrescimo em loop de P
+  
+	//Estados
+	parameter off=               5'b00000,
+				 Menu=                 5'b00001,
+	 			 dif1=                 5'b00010,
+         dif2=                 5'b00011,
+         dif3=                 5'b00100,
+         vel1=                 5'b00101,
+         vel2=                 5'b00110,
+         mode1=                5'b00111,
+ 				 mode2=                5'b01000,
+ 				 gen_sequence=         5'b01001,
+				 liga_cor=             5'b01010,
+ 				 exibe_sequencia=      5'b01011,
+ 				 desl_cor=             5'b01100,
+ 				 player_gera=          5'b01101,
+ 				 apaga_pvp=            5'b01111,
+ 				 player_responde=      5'b10000,
+ 				 muda_player=          5'b10001,
+ 				 pvp=                  5'b10010,
+	 			 liga_cor_pvp=         5'b10011,
+ 				 apaga_cor_gera=       5'b10100,
+ 				 entra_cor=            5'b10101,
+ 				 apaga_cor_responde=   5'b10110,
+ 				 compara_cor_gera=     5'b10111,
+ 				 compara_cor_responde= 5'b11000,
+	 			 fim=                  5'b11001,
+ 				 resultado=            5'b11010,
+ 				 continue=             5'b11011;
+  
+  //Parametrização de cores
+  parameter green=2'b00,
+  					red=2'b01,
+  					blue=2'b10,
+  					yellow=2'b11;
+ 
+	//DPE-Decodificador de próximo estado-----------------------------------------------------------------------------------------------------------------------------------------------
+  
+  always @(posedge Clock or negedge  Reset) begin
+
+		if(!Reset) begin
+			state <= off;
+		end
+
+		else state <= next_state;
+
+	end
+  
+  
+  
+  always@(*) begin
+    
+	state_atual <= state;
+	
+	  case(state)
+  	  //Menu Inicial
+    	off:	begin 
+			if(btn1==1) //botão de ligar
+				next_state=Menu;
+			end
+			
+		Menu:	begin
+				next_state=dif1;
+		end
+		
+      dif1: begin 
+        if(reset==1)
+          next_state=off;
+        else if(btn1==1)
+          next_state=dif2;
+        else if(btn2==1)
+          next_state=vel1;
+      end
+    
+      dif2: begin
+        if(reset==1)
+          next_state=off;
+        else if(btn1==1)
+          next_state=dif3;
+        else if(btn2==1)
+          next_state=vel1;
+      end
+    
+      dif3: begin 
+        if(reset==1)
+          next_state=off;
+        else if(btn1==1)
+          next_state=dif1;
+        else if(btn2==1)
+          next_state=vel1;
+      end  
+    
+      vel1: begin 
+        if(reset==1)
+          next_state=off;
+        else if(btn1==1)
+          next_state=vel2;
+        else if(btn2==1)
+          next_state=mode1;
+      end
+    
+      vel2: begin 
+        if(reset==1)
+          next_state=off;
+        else if(btn1==1)
+          next_state=vel1;
+        else if(btn2==1)
+          next_state=mode1;
+      end
+
+      mode1: begin 
+        if(reset==1)
+          next_state=off;
+        else if(btn1==1)
+       		next_state=mode2;
+       	else if(btn2==1)
+         	next_state=player_gera;
+      end
+		
+      mode2: begin 
+        if(reset==1)
+          next_state=off;
+        else if(btn1==1)
+        	next_state=mode1;
+        else if(btn2==1)
+          next_state=gen_sequence;
+      end
+	  endcase
+	  end
+	  endmodule
+	  

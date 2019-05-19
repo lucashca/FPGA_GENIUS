@@ -1,0 +1,36 @@
+module RandColor(
+  input  clk,
+  input  enable,
+  output reg [4:0] data,
+  output reg [3:0] signal
+);
+
+wire feedback = data[4] ^ data[1] ;
+reg [1:0] rand;
+
+always @(posedge clk) begin
+  if (~enable) 
+    data <= 4'hf;
+  else
+    data <= {data[3:0], feedback} ;
+    rand = data[1:0];
+
+     case(rand) 
+		 2'b00: begin
+		 	signal = 4'b0001; 
+		 end
+		 2'b01: begin
+		 	signal = 4'b0010; 
+		 end
+		 2'b10: begin
+		 	signal = 4'b0100;
+		 end
+		 2'b11: begin
+		 	signal = 4'b1000;
+		 end
+	endcase
+end
+ 
+
+endmodule
+
